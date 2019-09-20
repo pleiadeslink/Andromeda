@@ -1,0 +1,2 @@
+0.1
+- Basic behaviour for creeps, spawn, towers and remote mining

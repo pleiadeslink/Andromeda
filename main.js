@@ -8,6 +8,8 @@ var towerExt = require('towerExt');
 
 module.exports.loop = function () {
 
+
+
     // Update memory once in a while
     if(Game.time % 20 === 0) {
         for (let name in Memory.creeps) {
@@ -27,6 +29,8 @@ module.exports.loop = function () {
     for(let name in Game.creeps) {
         var creep = Game.creeps[name];
         creepExt.update(creep);
+        //Memory.room[creep.room.name].containerA = ['5d8406e2ec18233c4ea3311c', '5d8407fee9930148a560f2d7'];
+        //Memory.room[creep.room.name].containerA = ['5d85686dbcb9d00d2569e637'];
     }
 
     // Update towers

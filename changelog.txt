@@ -1,2 +1,5 @@
+0.2
+- External room mining
+
 0.1
 - Basic behaviour for creeps, spawn, towers and remote mining

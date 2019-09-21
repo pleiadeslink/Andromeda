@@ -75,12 +75,20 @@ module.exports = {
                                     && s.energy < s.energyCapacity
                     });
                     if(structure) {
-                        if (creep.transfer(structure, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
+                        if(creep.transfer(structure, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
                             creep.moveTo(structure);
                         }
                         return;
                     }
 
+                    return;
+
+                // HAULER
+                case 'hauler':
+                    var container = Game.getObjectById('5d85686dbcb9d00d2569e637');
+                    if(creep.transfer(container, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
+                        creep.moveTo(container);
+                    }
                     return;
 
                 // UPGRADER
@@ -138,39 +146,77 @@ module.exports = {
                 // ARCHITECT
                 case 'architect':
 
-                    // Find wall to repair
+                    // Find wall < 100000 health
                     var structure = creep.pos.findClosestByPath(FIND_STRUCTURES, {
-                        filter: (s) => s.hits < 100000 && s.structureType == STRUCTURE_WALL
+                        filter: (s) => s.hits < 100000 && (s.structureType == STRUCTURE_WALL || s.structureType == STRUCTURE_RAMPART)
                     });
-                    if (structure) {
+                    if(structure) {
                         if (creep.repair(structure) == ERR_NOT_IN_RANGE) {
                             creep.moveTo(structure);
                         }
+                        return;
+                    }
+
+                    // Find wall < 200000 health
+                    var structure = creep.pos.findClosestByPath(FIND_STRUCTURES, {
+                        filter: (s) => s.hits < 200000 && (s.structureType == STRUCTURE_WALL || s.structureType == STRUCTURE_RAMPART)
+                    });
+                    if(structure) {
+                        if (creep.repair(structure) == ERR_NOT_IN_RANGE) {
+                            creep.moveTo(structure);
+                        }
+                        return;
                     }
 
                     // Find something to build
-                    else {
-                        var constructionSite = creep.pos.findClosestByPath(FIND_CONSTRUCTION_SITES);
-                        if(constructionSite) {
-                            if(creep.build(constructionSite) == ERR_NOT_IN_RANGE) {
-                                creep.moveTo(constructionSite);
-                            }
-                            return;
+                    var constructionSite = creep.pos.findClosestByPath(FIND_CONSTRUCTION_SITES);
+                    if(constructionSite) {
+                        if(creep.build(constructionSite) == ERR_NOT_IN_RANGE) {
+                            creep.moveTo(constructionSite);
                         }
+                        return;
+                    }
 
-                        // Upgrade controller
-                        if(creep.upgradeController(creep.room.controller) == ERR_NOT_IN_RANGE) {
-                            creep.moveTo(creep.room.controller);
-                        }
+                    // Upgrade controller
+                    if(creep.upgradeController(creep.room.controller) == ERR_NOT_IN_RANGE) {
+                        creep.moveTo(creep.room.controller);
                     }
                     return;
 
-                // EXPLORER
+                // CLAIMER
+                case 'claimer':
+
+                    // If at home room, go to target room
+                    if (creep.room.name == creep.memory.home) {
+                        var targetPos = new RoomPosition(25,25, creep.memory.target);
+                        creep.moveTo(targetPos);
+                        return;
+                    }
+
+                    if(creep.reserveController(creep.room.controller) == ERR_NOT_IN_RANGE) {
+                        creep.moveTo(creep.room.controller);
+                    }
+                    return;
+
+                    // EXPLORER
                 case 'explorer':
 
                     // Home Room
                     if (creep.room.name == creep.memory.home) {
+
+                        // Look for container
+                        var container = creep.pos.findClosestByPath(FIND_STRUCTURES, {
+                            filter: (s) => s.structureType == STRUCTURE_CONTAINER
+                                        && s.store[RESOURCE_ENERGY] < s.storeCapacity
+                        });
+                        if(container) {
+                            if(creep.transfer(container, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
+                                creep.moveTo(container);
+                            }                        
+                            return;
+                        }
                         
+                        // Look for spawn / extensions
                         var structure = creep.pos.findClosestByPath(FIND_MY_STRUCTURES, {
                             filter: (s) => (s.structureType == STRUCTURE_SPAWN
                                         || s.structureType == STRUCTURE_EXTENSION)
@@ -184,16 +230,27 @@ module.exports = {
                                 creep.moveTo(structure);
                             }
                         }
+                        return;
                     }
 
-                    // External room
-                    else {
-                        
-                        // find exit to home room
-                        var exit = creep.room.findExitTo(creep.memory.home);
-                        // and move to exit
-                        creep.moveTo(creep.pos.findClosestByRange(exit));
+                    // Find something to build
+                    var constructionSite = creep.pos.findClosestByPath(FIND_CONSTRUCTION_SITES);
+                    if(constructionSite) {
+                        if (creep.build(constructionSite) == ERR_NOT_IN_RANGE) {
+                            creep.moveTo(constructionSite);
+                        }
+                        return;
                     }
+
+                    // Repair buildings
+                    var closestDamagedStructure = creep.pos.findClosestByRange(FIND_STRUCTURES, {filter: (s) => s.hits < s.hitsMax && s.structureType != STRUCTURE_WALL && s.structureType != STRUCTURE_RAMPART});
+                    if(closestDamagedStructure) {
+                        creep.repair(closestDamagedStructure);
+                    }
+                    
+                    // Go to home room
+                    var targetPos = new RoomPosition(25,25, creep.memory.home);
+                    creep.moveTo(targetPos);
                     return;
             }
 
@@ -207,19 +264,39 @@ module.exports = {
                     this.getEnergy(creep, true, false);
                     return;
                 case 'charger':
-                    this.getEnergy(creep, true, true);
+                    this.getEnergy(creep, false, true);
+                    return;
+                case 'hauler':
+                    //for(let containers in creep.room.
                     return;
                 case 'upgrader':
-                    this.getEnergy(creep, true, true);
+                    this.getEnergy(creep, false, true);
                     return;
                 case 'engineer':
                     this.getEnergy(creep, true, true);
                     return;
                 case 'architect':
-                    this.getEnergy(creep, true, true);
+                    this.getEnergy(creep, false, true);
                     return;
                 case 'explorer':
                     this.getExtEnergy(creep);
+                    return;
+                case 'claimer':
+                    this.getExtEnergy(creep);
+                    return;
+                case 'hauler':
+                    var container1 = Game.getObjectById('5d8407fee9930148a560f2d7');
+                    var container2 = Game.getObjectById('5d8406e2ec18233c4ea3311c');
+                    if(container1.store != 0 && container1.store > container2.store) {
+                        if(creep.withdraw(container1, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
+                            creep.moveTo(container1);
+                        }
+                    } else if(container2.store != 0) {
+                        console.log("Hola");
+                        if(creep.withdraw(container2, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
+                            creep.moveTo(container2);
+                        }                       
+                    }
                     return;
             }
         }
@@ -227,6 +304,18 @@ module.exports = {
 
     // Get energy from sources and containers
     getEnergy: function(creep, fromSource, fromContainer) {
+
+        // Get resource from floor
+        if(creep.carry.energy < creep.carryCapacity)  {
+            var energy = creep.pos.findInRange(
+                FIND_DROPPED_RESOURCES,
+                1
+            );
+            if(energy.length) {
+                creep.pickup(energy[0]);
+                return;
+            }
+        }
 
         // Look for container
         if(fromContainer == true) {
@@ -254,9 +343,21 @@ module.exports = {
     // Get energy from sources in room specified in creeper's memory
     getExtEnergy: function(creep) {
 
+        // Get resource from floor
+        if(creep.carry.energy < creep.carryCapacity)  {
+            var energy = creep.pos.findInRange(
+                FIND_DROPPED_RESOURCES,
+                1
+            );
+            if(energy.length) {
+                creep.pickup(energy[0]);
+                return;
+            }
+        }
+
         // If in target room, harvest source
         if(creep.room.name == creep.memory.target) {
-            var source = creep.pos.findClosestByRange(FIND_SOURCES_ACTIVE);
+            var source = creep.pos.findClosestByPath(FIND_SOURCES_ACTIVE);
             if(creep.harvest(source) == ERR_NOT_IN_RANGE) {
                 creep.moveTo(source);
             }
@@ -264,7 +365,7 @@ module.exports = {
         }
 
         // Move to target room
-        var exit = creep.room.findExitTo(creep.memory.target);
-        creep.moveTo(creep.pos.findClosestByRange(exit));
+        var targetPos = new RoomPosition(25,25, creep.memory.target);
+        creep.moveTo(targetPos);
     }
 };

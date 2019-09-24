@@ -3,7 +3,7 @@ module.exports = {
     update: function(creep) {
 
         if(creep.memory.working == true && creep.carry.energy == 0) {
-            creep.say("!");
+            creep.say("⛏️");
             creep.memory.working = false;
         } else if(creep.memory.working == false && creep.carry.energy == creep.carryCapacity) {
             creep.memory.working = true;
@@ -42,7 +42,6 @@ module.exports = {
                     // Find container
                     var structure = creep.pos.findClosestByPath(FIND_STRUCTURES, {
                         filter: (s) => (s.structureType == STRUCTURE_CONTAINER)
-                                        //&& s.store < s.storeCapacity
                     });
 
                     // Transfer / move to container
@@ -146,7 +145,7 @@ module.exports = {
                 // ARCHITECT
                 case 'architect':
 
-                    // Find wall < 100000 health
+                    // Find defense structure < 100000 health
                     var structure = creep.pos.findClosestByPath(FIND_STRUCTURES, {
                         filter: (s) => s.hits < 100000 && (s.structureType == STRUCTURE_WALL || s.structureType == STRUCTURE_RAMPART)
                     });
@@ -157,9 +156,9 @@ module.exports = {
                         return;
                     }
 
-                    // Find wall < 200000 health
+                    // Find defense structure < 200000 health
                     var structure = creep.pos.findClosestByPath(FIND_STRUCTURES, {
-                        filter: (s) => s.hits < 200000 && (s.structureType == STRUCTURE_WALL || s.structureType == STRUCTURE_RAMPART)
+                        filter: (s) => s.hits < 300000 && (s.structureType == STRUCTURE_WALL || s.structureType == STRUCTURE_RAMPART)
                     });
                     if(structure) {
                         if (creep.repair(structure) == ERR_NOT_IN_RANGE) {
@@ -285,9 +284,13 @@ module.exports = {
                     this.getExtEnergy(creep);
                     return;
                 case 'hauler':
-                    var container1 = Game.getObjectById('5d8407fee9930148a560f2d7');
+                    /*var container;
+                    container = Game.getObjectById('5d8407fee9930148a560f2d7');
+                    if(container && ) {
+                    }
                     var container2 = Game.getObjectById('5d8406e2ec18233c4ea3311c');
                     if(container1.store != 0 && container1.store > container2.store) {
+                        console.log("Hola");
                         if(creep.withdraw(container1, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
                             creep.moveTo(container1);
                         }
@@ -296,7 +299,7 @@ module.exports = {
                         if(creep.withdraw(container2, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
                             creep.moveTo(container2);
                         }                       
-                    }
+                    }*/
                     return;
             }
         }

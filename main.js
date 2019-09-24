@@ -8,8 +8,6 @@ var towerExt = require('towerExt');
 
 module.exports.loop = function () {
 
-
-
     // Update memory once in a while
     if(Game.time % 20 === 0) {
         for (let name in Memory.creeps) {

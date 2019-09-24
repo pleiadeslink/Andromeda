@@ -177,11 +177,11 @@ module.exports = {
                 break;
 
             case 5: // 1000
-                minMiners = 2;
+                minMiners = 3;
                 minChargers = 1;
-                minUpgraders = 3;
+                minUpgraders = 4;
                 minEngineers = 1;
-                minExplorers = 6;
+                minExplorers = 8;
                 minArchitects = 1;
                 minHaulers = 0;
 
@@ -213,10 +213,6 @@ module.exports = {
                     } else {
                         name = spawn.createCreep([WORK,WORK,WORK,WORK,CARRY,CARRY,CARRY,CARRY,CARRY,MOVE,MOVE,MOVE,MOVE], undefined, { role: 'explorer', working: false, level: level, target: 'E16N31', home: spawn.room.name});
                         spawn.memory.flag = 0;
-                    }
-                } else {
-                    if(currentUpgraders < 6) {
-                        name = spawn.createCreep([WORK,WORK,WORK,WORK,WORK,CARRY,CARRY,CARRY,MOVE,MOVE,MOVE], undefined, { role: 'upgrader', working: false, level: level, target: 'E16N31', home: spawn.room.name});
                     }
                 }
                 break;

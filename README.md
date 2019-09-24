@@ -1,0 +1,1 @@
+This is my personal AI for Screeps (https://screeps.com/), an open source MMO RTS sandbox game wherein the core mechanic is programming your custom AI. In this game, colonies are controlled by writing JavaScript which operates 24/7 in the single persistent world filled by other players. It's a lot of fun!

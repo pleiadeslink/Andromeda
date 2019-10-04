@@ -1,3 +1,6 @@
+0.3
+- Room expansion
+
 0.2
 - External room mining
 - Readme added

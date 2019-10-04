@@ -3,7 +3,7 @@ module.exports = {
     update: function(creep) {
 
         if(creep.memory.working == true && creep.carry.energy == 0) {
-            creep.say("⛏️");
+            creep.say("⚡");
             creep.memory.working = false;
         } else if(creep.memory.working == false && creep.carry.energy == creep.carryCapacity) {
             creep.memory.working = true;
@@ -41,7 +41,8 @@ module.exports = {
 
                     // Find container
                     var structure = creep.pos.findClosestByPath(FIND_STRUCTURES, {
-                        filter: (s) => (s.structureType == STRUCTURE_CONTAINER)
+                        filter: (s) => (s.structureType == STRUCTURE_CONTAINER
+                                        && s.store.energy < s.storeCapacity)
                     });
 
                     // Transfer / move to container
@@ -54,6 +55,10 @@ module.exports = {
 
                 // CHARGER
                 case 'charger':
+
+                    if(creep.room.energyAvailable < (creep.room.energyCapacityAvailable / 4)) {
+                        creep.say("💦");
+                    }
 
                     // Find low-charged tower
                     var structure = creep.pos.findClosestByPath(FIND_MY_STRUCTURES, {
@@ -80,18 +85,46 @@ module.exports = {
                         return;
                     }
 
+                    // Find storage
+                    var structure = creep.pos.findClosestByPath(FIND_STRUCTURES, {
+                        filter: (s) => (s.structureType == STRUCTURE_STORAGE
+                                        && s.store.energy < s.storeCapacity)
+                    });
+
+                    // Transfer / move to container
+                    if(structure) {
+                        if(creep.transfer(structure, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
+                            creep.moveTo(structure);
+                        }
+                    }
                     return;
 
                 // HAULER
                 case 'hauler':
-                    var container = Game.getObjectById('5d85686dbcb9d00d2569e637');
-                    if(creep.transfer(container, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
-                        creep.moveTo(container);
+
+                    // Find storage
+                    var structure = creep.pos.findClosestByPath(FIND_STRUCTURES, {
+                        filter: (s) => (s.structureType == STRUCTURE_STORAGE
+                                        && s.store.energy < s.storeCapacity)
+                    });
+
+                    // Transfer / move to container
+                    if(structure) {
+                        if(creep.transfer(structure, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
+                            creep.moveTo(structure);
+                        }
                     }
                     return;
 
                 // UPGRADER
                 case 'upgrader':
+
+                    // Move to target room
+                    if(creep.room.name != creep.memory.target) {
+                        var targetPos = new RoomPosition(25,25, creep.memory.target);
+                        creep.moveTo(targetPos);
+                        return;
+                    }
 
                     // Upgrade / move to controller
                     if(creep.upgradeController(creep.room.controller) == ERR_NOT_IN_RANGE) {
@@ -158,7 +191,7 @@ module.exports = {
 
                     // Find defense structure < 200000 health
                     var structure = creep.pos.findClosestByPath(FIND_STRUCTURES, {
-                        filter: (s) => s.hits < 300000 && (s.structureType == STRUCTURE_WALL || s.structureType == STRUCTURE_RAMPART)
+                        filter: (s) => s.hits < 500000 && (s.structureType == STRUCTURE_WALL || s.structureType == STRUCTURE_RAMPART)
                     });
                     if(structure) {
                         if (creep.repair(structure) == ERR_NOT_IN_RANGE) {
@@ -192,7 +225,7 @@ module.exports = {
                         return;
                     }
 
-                    if(creep.reserveController(creep.room.controller) == ERR_NOT_IN_RANGE) {
+                    if(creep.claimController(creep.room.controller) == ERR_NOT_IN_RANGE) {
                         creep.moveTo(creep.room.controller);
                     }
                     return;
@@ -257,31 +290,31 @@ module.exports = {
         } else {
             switch(creep.memory.role) {
                 case 'harvester':
-                    this.getEnergy(creep, true, false);
+                    this.getEnergy(creep, true, false, false);
                     return;
                 case 'miner':
-                    this.getEnergy(creep, true, false);
+                    this.getEnergy(creep, true, false, false);
                     return;
                 case 'charger':
-                    this.getEnergy(creep, false, true);
+                    this.getEnergy(creep, false, true, false);
                     return;
                 case 'hauler':
-                    //for(let containers in creep.room.
+                    this.getEnergy(creep, false, true, false);
                     return;
                 case 'upgrader':
-                    this.getEnergy(creep, false, true);
+                    this.getEnergy(creep, false, true, true);
                     return;
                 case 'engineer':
-                    this.getEnergy(creep, true, true);
+                    this.getEnergy(creep, true, true, false);
                     return;
                 case 'architect':
-                    this.getEnergy(creep, false, true);
+                    this.getEnergy(creep, false, true, false);
                     return;
                 case 'explorer':
                     this.getExtEnergy(creep);
                     return;
                 case 'claimer':
-                    this.getExtEnergy(creep);
+                        this.getEnergy(creep, true, true, false)
                     return;
                 case 'hauler':
                     /*var container;
@@ -306,7 +339,7 @@ module.exports = {
     },
 
     // Get energy from sources and containers
-    getEnergy: function(creep, fromSource, fromContainer) {
+    getEnergy: function(creep, fromSource, fromContainer, fromStorage) {
 
         // Get resource from floor
         if(creep.carry.energy < creep.carryCapacity)  {
@@ -316,6 +349,20 @@ module.exports = {
             );
             if(energy.length) {
                 creep.pickup(energy[0]);
+                return;
+            }
+        }
+
+        // Look for storage
+        if(fromStorage == true) {
+            var storage = creep.pos.findClosestByPath(FIND_STRUCTURES, {
+                filter: (s) => s.structureType == STRUCTURE_STORAGE
+                            && s.store[RESOURCE_ENERGY] > 0
+            });
+            if(storage) {
+                if(creep.withdraw(storage, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
+                    creep.moveTo(storage);
+                }                        
                 return;
             }
         }
@@ -370,5 +417,35 @@ module.exports = {
         // Move to target room
         var targetPos = new RoomPosition(25,25, creep.memory.target);
         creep.moveTo(targetPos);
+    },
+
+    // Not really used, not efficient
+    getEnergyFromContainer: function(creep) {
+
+        // Get energy from target container
+        if(creep.memory.targetContainer) {
+            var theContainer = Game.getObjectById( creep.memory.targetContainer );
+            if(creep.withdraw( theContainer, RESOURCE_ENERGY ) == ERR_NOT_IN_RANGE ) {
+                creep.moveTo( theContainer );
+            }
+            return true;
+        }
+
+        // Find container with most energy
+        var target = creep.room.find( FIND_STRUCTURES, {
+            filter: (structure) => {
+                return (structure.structureType == STRUCTURE_CONTAINER );
+            }
+        });
+        if(target.length) {
+            var allContainer = [];
+            for(var i = 0; i < target.length; i++ ) {
+                allContainer.push( { energyPercent: ( ( target[i].store.energy / target[i].storeCapacity ) * 100 ), id: target[i].id } );
+            }
+            var highestContainer = _.max( allContainer, function( container ){ return container.energyPercent; });
+            creep.memory.targetContainer = highestContainer.id;
+            return true;
+        }
+        return false;
     }
 };

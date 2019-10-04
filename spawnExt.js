@@ -1,4 +1,4 @@
-const level = [ 300, 400, 600, 800, 1000 ];
+const level = [ 300, 400, 600, 800, 1000, 1500 ];
 var nextLevel = level[1];
 
 module.exports = {
@@ -26,9 +26,11 @@ module.exports = {
             spawn.memory.level = 3; 
         } else if(spawn.room.energyCapacityAvailable >= level[3] && spawn.room.energyCapacityAvailable < level[4]) {
             spawn.memory.level = 4; 
-        } else if(spawn.room.energyCapacityAvailable >= level[4]) {
+        } else if(spawn.room.energyCapacityAvailable >= level[4] && spawn.room.energyCapacityAvailable < level[5]) {
             spawn.memory.level = 5; 
-        }         
+        } else if(spawn.room.energyCapacityAvailable >= level[5]) {
+            spawn.memory.level = 5; 
+        }           
     },
 
     // Spawns creeps when needed
@@ -69,7 +71,7 @@ module.exports = {
                 if(currentHarvesters < minHarvesters) { 
                     name = spawn.createCreep([WORK,WORK,CARRY,MOVE], undefined, { role: 'harvester', working: false, level: level, target: 'E16N31', home: spawn.room.name});
                 } else if(currentUpgraders < minUpgraders) {
-                    name = spawn.createCreep([WORK,WORK,CARRY,MOVE], undefined, { role: 'upgrader', working: false, level: level, target: 'E16N31', home: spawn.room.name});
+                    name = spawn.createCreep([WORK,WORK,CARRY,MOVE], undefined, { role: 'upgrader', working: false, level: level, target:  spawn.room.name, home: spawn.room.name});
                 } else if(currentEngineers < minEngineers) {
                     name = spawn.createCreep([WORK,WORK,CARRY,MOVE], undefined, { role: 'engineer', working: false, level: level, target: 'E16N31', home: spawn.room.name});
                 } else {
@@ -98,7 +100,7 @@ module.exports = {
                 } else if(currentChargers < minChargers) { 
                     name = spawn.createCreep([CARRY,CARRY,CARRY,CARRY,MOVE,MOVE,MOVE,MOVE], undefined, { role: 'charger', working: false, level: level, target: 'E16N31', home: spawn.room.name});
                 } else if(currentUpgraders < minUpgraders) {
-                    name = spawn.createCreep([WORK,WORK,WORK,CARRY,MOVE], undefined, { role: 'upgrader', working: false, level: level, target: 'E16N31', home: spawn.room.name});
+                    name = spawn.createCreep([WORK,WORK,WORK,CARRY,MOVE], undefined, { role: 'upgrader', working: false, level: level, target:  spawn.room.name, home: spawn.room.name});
                 } else if(currentEngineers < minEngineers) {
                     name = spawn.createCreep([WORK,WORK,WORK,CARRY,MOVE], undefined, { role: 'engineer', working: false, level: level, target: 'E16N31', home: spawn.room.name});
                 } else {
@@ -129,7 +131,7 @@ module.exports = {
                 } else if(currentChargers < minChargers) { 
                     name = spawn.createCreep([CARRY,CARRY,CARRY,CARRY,MOVE,MOVE,MOVE,MOVE], undefined, { role: 'charger', working: false, level: level, target: 'E16N31', home: spawn.room.name});
                 } else if(currentUpgraders < minUpgraders) {
-                    name = spawn.createCreep([WORK,WORK,WORK,WORK,WORK,CARRY,MOVE], undefined, { role: 'upgrader', working: false, level: level, target: 'E16N31', home: spawn.room.name});
+                    name = spawn.createCreep([WORK,WORK,WORK,WORK,WORK,CARRY,MOVE], undefined, { role: 'upgrader', working: false, level: level, target:  spawn.room.name, home: spawn.room.name});
                 } else if(currentEngineers < minEngineers) {
                     name = spawn.createCreep([WORK,WORK,WORK,WORK,WORK,CARRY,MOVE], undefined, { role: 'engineer', working: false, level: level, target: 'E16N31', home: spawn.room.name});
                 } else if(currentArchitects < minArchitects) {
@@ -164,7 +166,7 @@ module.exports = {
                 } else if(currentChargers < minChargers) { 
                     name = spawn.createCreep([CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE], undefined, { role: 'charger', working: false, level: level, target: 'E16N31', home: spawn.room.name});
                 } else if(currentUpgraders < minUpgraders) {
-                    name = spawn.createCreep([WORK,WORK,WORK,WORK,WORK,CARRY,CARRY,CARRY,MOVE,MOVE,MOVE], undefined, { role: 'upgrader', working: false, level: level, target: 'E16N31', home: spawn.room.name});
+                    name = spawn.createCreep([WORK,WORK,WORK,WORK,WORK,CARRY,CARRY,CARRY,MOVE,MOVE,MOVE], undefined, { role: 'upgrader', working: false, level: level, target:  spawn.room.name, home: spawn.room.name});
                 } else if(currentEngineers < minEngineers) {
                     name = spawn.createCreep([WORK,WORK,WORK,WORK,WORK,CARRY,CARRY,CARRY,MOVE,MOVE,MOVE], undefined, { role: 'engineer', working: false, level: level, target: 'E16N31', home: spawn.room.name});
                 } else if(currentArchitects < minArchitects) {
@@ -178,12 +180,13 @@ module.exports = {
 
             case 5: // 1000
                 minMiners = 3;
-                minChargers = 1;
+                minChargers = 2;
                 minUpgraders = 4;
-                minEngineers = 1;
+                minEngineers = 0;
                 minExplorers = 8;
                 minArchitects = 1;
                 minHaulers = 0;
+                minClaimers = 0;
 
                 // harvester - miner - charger - upgrader - engineer - upgrader
                 if(currentMiners == 0) {
@@ -201,7 +204,53 @@ module.exports = {
                 } else if(currentHaulers < minHaulers) { 
                     name = spawn.createCreep([CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE], undefined, { role: 'hauler', working: false, level: level, target: 'E16N31', home: spawn.room.name});
                 } else if(currentUpgraders < minUpgraders) {
-                    name = spawn.createCreep([WORK,WORK,WORK,WORK,WORK,CARRY,CARRY,CARRY,MOVE,MOVE,MOVE], undefined, { role: 'upgrader', working: false, level: level, target: 'E16N31', home: spawn.room.name});
+                    name = spawn.createCreep([WORK,WORK,WORK,WORK,WORK,CARRY,CARRY,CARRY,MOVE,MOVE,MOVE], undefined, { role: 'upgrader', working: false, level: level, target: spawn.room.name, home: spawn.room.name});
+                } else if(currentEngineers < minEngineers) {
+                    name = spawn.createCreep([WORK,WORK,WORK,WORK,WORK,CARRY,CARRY,CARRY,MOVE,MOVE,MOVE], undefined, { role: 'engineer', working: false, level: level, target: 'E16N31', home: spawn.room.name});
+                } else if(currentArchitects < minArchitects) {
+                    name = spawn.createCreep([WORK,WORK,WORK,WORK,WORK,CARRY,CARRY,CARRY,MOVE,MOVE,MOVE], undefined, { role: 'architect', working: false, level: level, target: 'E16N31', home: spawn.room.name});
+                } else if(currentExplorers < minExplorers) {
+                    if(spawn.memory.flag == 0) {
+                        name = spawn.createCreep([WORK,WORK,WORK,WORK,CARRY,CARRY,CARRY,CARRY,CARRY,MOVE,MOVE,MOVE,MOVE], undefined, { role: 'explorer', working: false, level: level, target: 'E16N32', home: spawn.room.name});
+                        spawn.memory.flag = 1;
+                    } else {
+                        name = spawn.createCreep([WORK,WORK,WORK,WORK,CARRY,CARRY,CARRY,CARRY,CARRY,MOVE,MOVE,MOVE,MOVE], undefined, { role: 'explorer', working: false, level: level, target: 'E16N31', home: spawn.room.name});
+                        spawn.memory.flag = 0;
+                    }
+                } else if(currentClaimers < minClaimers) {
+                    name = spawn.createCreep([CLAIM,WORK,WORK,CARRY,CARRY,CARRY,CARRY,MOVE,MOVE,MOVE,MOVE], undefined, { role: 'claimer', working: false, level: level, target: 'E16N31', home: spawn.room.name});
+                }// else if(currentUpgraders < (minUpgraders + 1)) { // External upgraders (dirty)
+                //    name = spawn.createCreep([WORK,WORK,WORK,WORK,WORK,WORK,CARRY,CARRY,CARRY,MOVE,MOVE,MOVE,MOVE,MOVE], undefined, { role: 'upgrader', working: false, level: level, target: 'E16N31', home: 'E16N31'});
+                //}
+                break;
+
+            case 6: // 1500
+                minMiners = 3;
+                minChargers = 1;
+                minUpgraders = 2;
+                minEngineers = 0;
+                minExplorers = 8;
+                minArchitects = 1;
+                minHaulers = 1;
+                minClaimers = 0;
+
+                // harvester - miner - charger - upgrader - engineer - upgrader
+                if(currentMiners == 0) {
+                    if(currentHarvesters == 0) {
+                        name = spawn.createCreep([WORK,WORK,CARRY,MOVE], undefined, { role: 'harvester', working: false, level: level, target: 'E16N31', home: spawn.room.name});
+                    } else {
+                        name = spawn.createCreep([WORK,WORK,WORK,WORK,WORK,WORK,WORK,CARRY,MOVE,MOVE], undefined, { role: 'miner', working: false, level: level, target: 'E16N31', home: spawn.room.name});
+                    }
+                } else if(currentMiners == 1 && currentChargers == 0) {
+                    name = spawn.createCreep([CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE], undefined, { role: 'charger', working: false, level: level, target: 'E16N31', home: spawn.room.name});
+                } else if(currentMiners < minMiners) {
+                    name = spawn.createCreep([WORK,WORK,WORK,WORK,WORK,WORK,WORK,CARRY,MOVE,MOVE], undefined, { role: 'miner', working: false, level: level, target: 'E16N31', home: spawn.room.name});
+                } else if(currentChargers < minChargers) { 
+                    name = spawn.createCreep([CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE], undefined, { role: 'charger', working: false, level: level, target: 'E16N31', home: spawn.room.name});
+                } else if(currentHaulers < minHaulers) { 
+                    name = spawn.createCreep([CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,CARRY,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE,MOVE], undefined, { role: 'hauler', working: false, level: level, target: 'E16N31', home: spawn.room.name});
+                } else if(currentUpgraders < minUpgraders) {
+                    name = spawn.createCreep([WORK,WORK,WORK,WORK,WORK,WORK,WORK,WORK,WORK,WORK,CARRY,CARRY,MOVE,MOVE,MOVE], undefined, { role: 'upgrader', working: false, level: level, target: spawn.room.name, home: spawn.room.name});
                 } else if(currentEngineers < minEngineers) {
                     name = spawn.createCreep([WORK,WORK,WORK,WORK,WORK,CARRY,CARRY,CARRY,MOVE,MOVE,MOVE], undefined, { role: 'engineer', working: false, level: level, target: 'E16N31', home: spawn.room.name});
                 } else if(currentArchitects < minArchitects) {
@@ -214,7 +263,11 @@ module.exports = {
                         name = spawn.createCreep([WORK,WORK,WORK,WORK,CARRY,CARRY,CARRY,CARRY,CARRY,MOVE,MOVE,MOVE,MOVE], undefined, { role: 'explorer', working: false, level: level, target: 'E16N31', home: spawn.room.name});
                         spawn.memory.flag = 0;
                     }
-                }
+                } else if(currentClaimers < minClaimers) {
+                    name = spawn.createCreep([CLAIM,WORK,WORK,CARRY,CARRY,CARRY,CARRY,MOVE,MOVE,MOVE,MOVE], undefined, { role: 'claimer', working: false, level: level, target: 'E16N31', home: spawn.room.name});
+                }// else if(currentUpgraders < (minUpgraders + 1)) { // External upgraders (dirty)
+                //    name = spawn.createCreep([WORK,WORK,WORK,WORK,WORK,WORK,CARRY,CARRY,CARRY,MOVE,MOVE,MOVE,MOVE,MOVE], undefined, { role: 'upgrader', working: false, level: level, target: 'E16N31', home: 'E16N31'});
+                //}
                 break;
         }
 
@@ -224,5 +277,13 @@ module.exports = {
         + currentUpgraders + " upgraders, " + currentEngineers + " engineers, " + currentArchitects + " architects, " + currentExplorers + " explorers, " + currentClaimers + " claimers, " + currentHaulers + " haulers.");
         console.log("-----------------------------------------------------------------------------------------------------");
            
+    },
+
+    // Adds a room to the upgrade target room list in the spawn memory
+    upgradeRoom: function(spawn, target) {
+        if(!spawn.memory.upgrade) {
+            spawn.memory.upgrade = [];
+        }
+        spawn.memory.upgrade.push(target);
     }
 };

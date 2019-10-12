@@ -1,23 +1,21 @@
-module.exports = {
-
-    update: function(creep) {
-
-        if(creep.memory.working == true && creep.carry.energy == 0) {
-            creep.say("⚡");
-            creep.memory.working = false;
-        } else if(creep.memory.working == false && creep.carry.energy == creep.carryCapacity) {
-            creep.memory.working = true;
+Creep.prototype.update =
+    function () {
+        if(this.memory.working == true && this.carry.energy == 0) {
+            this.say("⚡");
+            this.memory.working = false;
+        } else if(this.memory.working == false && this.carry.energy == this.carryCapacity) {
+            this.memory.working = true;
         }
-        if(creep.memory.working == true) {
+        if(this.memory.working == true) {
 
             // Do task
-            switch(creep.memory.role) {
+            switch(this.memory.role) {
 
                 // HARVESTER
                 case 'harvester':
 
                     // Find spawn / extension
-                    var structure = creep.pos.findClosestByPath(FIND_MY_STRUCTURES, {
+                    var structure = this.pos.findClosestByPath(FIND_MY_STRUCTURES, {
                         filter: (s) => (s.structureType == STRUCTURE_SPAWN
                                         || s.structureType == STRUCTURE_EXTENSION)
                                         && s.energy < s.energyCapacity
@@ -25,8 +23,8 @@ module.exports = {
 
                     // Transfer / move to structure
                     if(structure) {
-                        if(creep.transfer(structure, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
-                            creep.moveTo(structure);
+                        if(this.transfer(structure, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
+                            this.moveTo(structure);
                         }
                     }
                     return;
@@ -36,25 +34,25 @@ module.exports = {
 
                     // If no more miners and charger, turn into harvester
                     if(_.sum(Game.creeps, (c) => c.memory.role == 'miner') > 1 && _.sum(Game.creeps, (c) => c.memory.role == 'charger') == 0) {
-                        creep.memory.role = 'harvester';
+                        this.memory.role = 'harvester';
                     }
 
                     // Find container
-                    var structure = creep.pos.findClosestByPath(FIND_STRUCTURES, {
+                    var structure = this.pos.findClosestByPath(FIND_STRUCTURES, {
                         filter: (s) => (s.structureType == STRUCTURE_CONTAINER
                                         && s.store.energy < s.storeCapacity)
                     });
 
                     // Transfer / move to container
                     if(structure) {
-                        if(creep.transfer(structure, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
-                            creep.moveTo(structure);
+                        if(this.transfer(structure, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
+                            this.moveTo(structure);
                         }
                         return;
                     }
 
                     // Find spawn / extension
-                    var structure = creep.pos.findClosestByPath(FIND_MY_STRUCTURES, {
+                    var structure = this.pos.findClosestByPath(FIND_MY_STRUCTURES, {
                         filter: (s) => (s.structureType == STRUCTURE_SPAWN
                                         || s.structureType == STRUCTURE_EXTENSION)
                                         && s.energy < s.energyCapacity
@@ -62,8 +60,8 @@ module.exports = {
 
                     // Transfer / move to structure
                     if(structure) {
-                        if(creep.transfer(structure, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
-                            creep.moveTo(structure);
+                        if(this.transfer(structure, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
+                            this.moveTo(structure);
                         }
                     }
                     return;
@@ -71,45 +69,45 @@ module.exports = {
                 // CHARGER
                 case 'charger':
 
-                    if(creep.room.energyAvailable < (creep.room.energyCapacityAvailable / 4)) {
-                        creep.say("💦");
+                    if(this.room.energyAvailable < (this.room.energyCapacityAvailable / 4)) {
+                        this.say("💦");
                     }
 
                     // Find low-charged tower
-                    var structure = creep.pos.findClosestByPath(FIND_MY_STRUCTURES, {
+                    var structure = this.pos.findClosestByPath(FIND_MY_STRUCTURES, {
                         filter: (s) => (s.structureType == STRUCTURE_TOWER)
                                     && s.energy < (s.energyCapacity / 2)
                     });
                     if(structure) {
-                        if (creep.transfer(structure, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
-                            creep.moveTo(structure);
+                        if (this.transfer(structure, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
+                            this.moveTo(structure);
                         }
                         return;
                     }
 
                     // Find structure that needs to be recharged
-                    var structure = creep.pos.findClosestByPath(FIND_MY_STRUCTURES, {
+                    var structure = this.pos.findClosestByPath(FIND_MY_STRUCTURES, {
                         filter: (s) => (s.structureType == STRUCTURE_SPAWN
                                     || s.structureType == STRUCTURE_EXTENSION)
                                     && s.energy < s.energyCapacity
                     });
                     if(structure) {
-                        if(creep.transfer(structure, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
-                            creep.moveTo(structure);
+                        if(this.transfer(structure, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
+                            this.moveTo(structure);
                         }
                         return;
                     }
 
                     // Find storage
-                    var structure = creep.pos.findClosestByPath(FIND_STRUCTURES, {
+                    var structure = this.pos.findClosestByPath(FIND_STRUCTURES, {
                         filter: (s) => (s.structureType == STRUCTURE_STORAGE
                                         && s.store.energy < s.storeCapacity)
                     });
 
                     // Transfer / move to container
                     if(structure) {
-                        if(creep.transfer(structure, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
-                            creep.moveTo(structure);
+                        if(this.transfer(structure, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
+                            this.moveTo(structure);
                         }
                     }
                     return;
@@ -118,15 +116,15 @@ module.exports = {
                 case 'hauler':
 
                     // Find storage
-                    var structure = creep.pos.findClosestByPath(FIND_STRUCTURES, {
+                    var structure = this.pos.findClosestByPath(FIND_STRUCTURES, {
                         filter: (s) => (s.structureType == STRUCTURE_STORAGE
                                         && s.store.energy < s.storeCapacity)
                     });
 
                     // Transfer / move to container
                     if(structure) {
-                        if(creep.transfer(structure, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
-                            creep.moveTo(structure);
+                        if(this.transfer(structure, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
+                            this.moveTo(structure);
                         }
                     }
                     return;
@@ -135,15 +133,15 @@ module.exports = {
                 case 'upgrader':
 
                     // Move to target room
-                    if(creep.room.name != creep.memory.target) {
-                        var targetPos = new RoomPosition(25,25, creep.memory.target);
-                        creep.moveTo(targetPos);
+                    if(this.room.name != this.memory.target) {
+                        var targetPos = new RoomPosition(25,25, this.memory.target);
+                        this.moveTo(targetPos);
                         return;
                     }
 
                     // Upgrade / move to controller
-                    if(creep.upgradeController(creep.room.controller) == ERR_NOT_IN_RANGE) {
-                        creep.moveTo(creep.room.controller);
+                    if(this.upgradeController(this.room.controller) == ERR_NOT_IN_RANGE) {
+                        this.moveTo(this.room.controller);
                     }
                     return;
 
@@ -156,28 +154,28 @@ module.exports = {
                     //}
 
                     // Find something to build
-                    var constructionSite = creep.pos.findClosestByPath(FIND_CONSTRUCTION_SITES);
+                    var constructionSite = this.pos.findClosestByPath(FIND_CONSTRUCTION_SITES);
                     if(constructionSite) {
-                        if (creep.build(constructionSite) == ERR_NOT_IN_RANGE) {
-                            creep.moveTo(constructionSite);
+                        if (this.build(constructionSite) == ERR_NOT_IN_RANGE) {
+                            this.moveTo(constructionSite);
                         }
                         return;
                     }
 
                     // Find structure to repair
-                    var structure = creep.pos.findClosestByPath(FIND_STRUCTURES, { filter: (s) => s.hits < s.hitsMax
+                    var structure = this.pos.findClosestByPath(FIND_STRUCTURES, { filter: (s) => s.hits < s.hitsMax
                                                                                             && s.structureType != STRUCTURE_WALL
                                                                                             && s.structureType != STRUCTURE_RAMPART });
                     if(structure) {
-                        if(creep.repair(structure) == ERR_NOT_IN_RANGE) {
-                            creep.moveTo(structure);
+                        if(this.repair(structure) == ERR_NOT_IN_RANGE) {
+                            this.moveTo(structure);
                         }
                         return;
                     }
 
                     // Upgrade controller
-                    if(creep.upgradeController(creep.room.controller) == ERR_NOT_IN_RANGE) {
-                        creep.moveTo(creep.room.controller);
+                    if(this.upgradeController(this.room.controller) == ERR_NOT_IN_RANGE) {
+                        this.moveTo(this.room.controller);
                     }
                     return;
 
@@ -185,39 +183,39 @@ module.exports = {
                 case 'architect':
 
                     // Find defense structure < 100000 health
-                    var structure = creep.pos.findClosestByPath(FIND_STRUCTURES, {
+                    var structure = this.pos.findClosestByPath(FIND_STRUCTURES, {
                         filter: (s) => s.hits < 100000 && (s.structureType == STRUCTURE_WALL || s.structureType == STRUCTURE_RAMPART)
                     });
                     if(structure) {
-                        if (creep.repair(structure) == ERR_NOT_IN_RANGE) {
-                            creep.moveTo(structure);
+                        if (this.repair(structure) == ERR_NOT_IN_RANGE) {
+                            this.moveTo(structure);
                         }
                         return;
                     }
 
                     // Find defense structure < 200000 health
-                    var structure = creep.pos.findClosestByPath(FIND_STRUCTURES, {
+                    var structure = this.pos.findClosestByPath(FIND_STRUCTURES, {
                         filter: (s) => s.hits < 200000 && (s.structureType == STRUCTURE_WALL || s.structureType == STRUCTURE_RAMPART)
                     });
                     if(structure) {
-                        if (creep.repair(structure) == ERR_NOT_IN_RANGE) {
-                            creep.moveTo(structure);
+                        if (this.repair(structure) == ERR_NOT_IN_RANGE) {
+                            this.moveTo(structure);
                         }
                         return;
                     }
 
                     // Find something to build
-                    var constructionSite = creep.pos.findClosestByPath(FIND_CONSTRUCTION_SITES);
+                    var constructionSite = this.pos.findClosestByPath(FIND_CONSTRUCTION_SITES);
                     if(constructionSite) {
-                        if(creep.build(constructionSite) == ERR_NOT_IN_RANGE) {
-                            creep.moveTo(constructionSite);
+                        if(this.build(constructionSite) == ERR_NOT_IN_RANGE) {
+                            this.moveTo(constructionSite);
                         }
                         return;
                     }
 
                     // Upgrade controller
-                    if(creep.upgradeController(creep.room.controller) == ERR_NOT_IN_RANGE) {
-                        creep.moveTo(creep.room.controller);
+                    if(this.upgradeController(this.room.controller) == ERR_NOT_IN_RANGE) {
+                        this.moveTo(this.room.controller);
                     }
                     return;
 
@@ -225,14 +223,14 @@ module.exports = {
                 case 'claimer':
 
                     // If at home room, go to target room
-                    if (creep.room.name == creep.memory.home) {
-                        var targetPos = new RoomPosition(25,25, creep.memory.target);
-                        creep.moveTo(targetPos);
+                    if (this.room.name == this.memory.home) {
+                        var targetPos = new RoomPosition(25,25, this.memory.target);
+                        this.moveTo(targetPos);
                         return;
                     }
 
-                    if(creep.claimController(creep.room.controller) == ERR_NOT_IN_RANGE) {
-                        creep.moveTo(creep.room.controller);
+                    if(this.claimController(this.room.controller) == ERR_NOT_IN_RANGE) {
+                        this.moveTo(this.room.controller);
                     }
                     return;
 
@@ -240,87 +238,87 @@ module.exports = {
                 case 'explorer':
 
                     // Home Room
-                    if (creep.room.name == creep.memory.home) {
+                    if (this.room.name == this.memory.home) {
 
                         // Look for container
-                        var container = creep.pos.findClosestByPath(FIND_STRUCTURES, {
+                        var container = this.pos.findClosestByPath(FIND_STRUCTURES, {
                             filter: (s) => s.structureType == STRUCTURE_CONTAINER
                                         && s.store[RESOURCE_ENERGY] < s.storeCapacity
                         });
                         if(container) {
-                            if(creep.transfer(container, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
-                                creep.moveTo(container);
+                            if(this.transfer(container, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
+                                this.moveTo(container);
                             }
                             return;
                         }
 
                         // Look for spawn / extensions
-                        var structure = creep.pos.findClosestByPath(FIND_MY_STRUCTURES, {
+                        var structure = this.pos.findClosestByPath(FIND_MY_STRUCTURES, {
                             filter: (s) => (s.structureType == STRUCTURE_SPAWN
                                         || s.structureType == STRUCTURE_EXTENSION)
                                         && s.energy < s.energyCapacity
                         });
                         if (structure == undefined) {
-                            structure = creep.room.storage;
+                            structure = this.room.storage;
                         }
                         if (structure != undefined) {
-                            if (creep.transfer(structure, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
-                                creep.moveTo(structure);
+                            if (this.transfer(structure, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
+                                this.moveTo(structure);
                             }
                         }
                         return;
                     }
 
                     // Find something to build
-                    var constructionSite = creep.pos.findClosestByPath(FIND_CONSTRUCTION_SITES);
+                    var constructionSite = this.pos.findClosestByPath(FIND_CONSTRUCTION_SITES);
                     if(constructionSite) {
-                        if (creep.build(constructionSite) == ERR_NOT_IN_RANGE) {
-                            creep.moveTo(constructionSite);
+                        if (this.build(constructionSite) == ERR_NOT_IN_RANGE) {
+                            this.moveTo(constructionSite);
                         }
                         return;
                     }
 
                     // Repair buildings
-                    var closestDamagedStructure = creep.pos.findClosestByRange(FIND_STRUCTURES, {filter: (s) => s.hits < s.hitsMax && s.structureType != STRUCTURE_WALL && s.structureType != STRUCTURE_RAMPART});
+                    var closestDamagedStructure = this.pos.findClosestByRange(FIND_STRUCTURES, {filter: (s) => s.hits < s.hitsMax && s.structureType != STRUCTURE_WALL && s.structureType != STRUCTURE_RAMPART});
                     if(closestDamagedStructure) {
-                        creep.repair(closestDamagedStructure);
+                        this.repair(closestDamagedStructure);
                     }
 
                     // Go to home room
-                    var targetPos = new RoomPosition(25,25, creep.memory.home);
-                    creep.moveTo(targetPos);
+                    var targetPos = new RoomPosition(25,25, this.memory.home);
+                    this.moveTo(targetPos);
                     return;
             }
 
         // Get energy
         } else {
-            switch(creep.memory.role) {
+            switch(this.memory.role) {
                 case 'harvester':
-                    this.getEnergy(creep, true, false, false);
+                    this.getEnergy(true, false, false);
                     return;
                 case 'miner':
-                    this.getEnergy(creep, true, false, false);
+                    this.getEnergy(true, false, false);
                     return;
                 case 'charger':
-                    this.getEnergy(creep, false, true, false);
+                    this.getEnergy(false, true, false);
                     return;
                 case 'hauler':
-                    this.getEnergy(creep, false, true, false);
+                    this.getEnergy(false, true, false);
                     return;
                 case 'upgrader':
-                    this.getEnergy(creep, false, true, true);
+                    this.getEnergy(false, true, true);
                     return;
                 case 'engineer':
-                    this.getEnergy(creep, false, true, false);
+                    this.getEnergy(false, true, false);
                     return;
                 case 'architect':
-                    this.getEnergy(creep, false, true, false);
+                    this.getEnergy(false, true, false);
                     return;
                 case 'explorer':
-                    this.getExtEnergy(creep);
+                    //this.getExtEnergy();
                     return;
                 case 'claimer':
-                        this.getEnergy(creep, true, true, false)
+                        this.getEnergy(true, true, false)
                     return;
                 case 'hauler':
                     /*var container;
@@ -329,12 +327,10 @@ module.exports = {
                     }
                     var container2 = Game.getObjectById('5d8406e2ec18233c4ea3311c');
                     if(container1.store != 0 && container1.store > container2.store) {
-                        console.log("Hola");
                         if(creep.withdraw(container1, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
                             creep.moveTo(container1);
                         }
                     } else if(container2.store != 0) {
-                        console.log("Hola");
                         if(creep.withdraw(container2, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
                             creep.moveTo(container2);
                         }
@@ -342,31 +338,19 @@ module.exports = {
                     return;
             }
         }
-    },
+    };
 
-    // Get energy from sources and containers
-    getEnergy: function(creep, fromSource, fromContainer, fromStorage) {
-
-        /*/ Get resource from floor
-        var energy = creep.pos.findInRange(FIND_DROPPED_RESOURCES,  1);
-        if(energy) {
-          if(energy.length) {
-              creep.pickup(energy[0]);
-          } else {
-              creep.moveTo(energy);
-          }
-          return;
-        }*/
-
+Creep.prototype.getEnergy =
+    function(fromSource, fromContainer, fromStorage) {
         // Look for storage
         if(fromStorage == true) {
-            var storage = creep.pos.findClosestByPath(FIND_STRUCTURES, {
+            var storage = this.pos.findClosestByPath(FIND_STRUCTURES, {
                 filter: (s) => s.structureType == STRUCTURE_STORAGE
                             && s.store[RESOURCE_ENERGY] > 0
             });
             if(storage) {
-                if(creep.withdraw(storage, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
-                    creep.moveTo(storage);
+                if(this.withdraw(storage, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
+                    this.moveTo(storage);
                 }
                 return;
             }
@@ -374,13 +358,13 @@ module.exports = {
 
         // Look for container
         if(fromContainer == true) {
-            var container = creep.pos.findClosestByPath(FIND_STRUCTURES, {
+            var container = this.pos.findClosestByPath(FIND_STRUCTURES, {
                 filter: (s) => s.structureType == STRUCTURE_CONTAINER
                             && s.store[RESOURCE_ENERGY] > 0
             });
             if(container) {
-                if(creep.withdraw(container, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
-                    creep.moveTo(container);
+                if(this.withdraw(container, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
+                    this.moveTo(container);
                 }
                 return;
             }
@@ -388,69 +372,9 @@ module.exports = {
 
         // Look for source
         if(fromSource == true) {
-            var source = creep.pos.findClosestByPath(FIND_SOURCES_ACTIVE);
-            if(creep.harvest(source) == ERR_NOT_IN_RANGE) {
-                creep.moveTo(source);
+            var source = this.pos.findClosestByPath(FIND_SOURCES_ACTIVE);
+            if(this.harvest(source) == ERR_NOT_IN_RANGE) {
+                this.moveTo(source);
             }
         }
-    },
-
-    // Get energy from sources in room specified in creeper's memory
-    getExtEnergy: function(creep) {
-
-        // Get resource from floor
-        if(creep.carry.energy < creep.carryCapacity)  {
-            var energy = creep.pos.findInRange(
-                FIND_DROPPED_RESOURCES,
-                1
-            );
-            if(energy.length) {
-                creep.pickup(energy[0]);
-                return;
-            }
-        }
-
-        // If in target room, harvest source
-        if(creep.room.name == creep.memory.target) {
-            var source = creep.pos.findClosestByPath(FIND_SOURCES_ACTIVE);
-            if(creep.harvest(source) == ERR_NOT_IN_RANGE) {
-                creep.moveTo(source);
-            }
-            return;
-        }
-
-        // Move to target room
-        var targetPos = new RoomPosition(25,25, creep.memory.target);
-        creep.moveTo(targetPos);
-    },
-
-    // Not really used, not efficient
-    getEnergyFromContainer: function(creep) {
-
-        // Get energy from target container
-        if(creep.memory.targetContainer) {
-            var theContainer = Game.getObjectById( creep.memory.targetContainer );
-            if(creep.withdraw( theContainer, RESOURCE_ENERGY ) == ERR_NOT_IN_RANGE ) {
-                creep.moveTo( theContainer );
-            }
-            return true;
-        }
-
-        // Find container with most energy
-        var target = creep.room.find( FIND_STRUCTURES, {
-            filter: (structure) => {
-                return (structure.structureType == STRUCTURE_CONTAINER );
-            }
-        });
-        if(target.length) {
-            var allContainer = [];
-            for(var i = 0; i < target.length; i++ ) {
-                allContainer.push( { energyPercent: ( ( target[i].store.energy / target[i].storeCapacity ) * 100 ), id: target[i].id } );
-            }
-            var highestContainer = _.max( allContainer, function( container ){ return container.energyPercent; });
-            creep.memory.targetContainer = highestContainer.id;
-            return true;
-        }
-        return false;
-    }
-};
+    };

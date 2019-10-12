@@ -1,7 +1,7 @@
 //require('prototype.spawn')();
-var spawnExt = require('spawnExt');
-var creepExt = require('creepExt');
-var towerExt = require('towerExt');
+var spawnExt = require('prototype.spawn');
+var creepExt = require('prototype.creep');
+var towerExt = require('prototype.tower');
 
 // room.energyAvailable
 //room.energyCapacityAvailable
@@ -19,21 +19,20 @@ module.exports.loop = function () {
 
     // Update spawns
     for(let name in Game.spawns) {
-        var spawn = Game.spawns[name];
-        spawnExt.update(spawn);
+         Game.spawns[name].update();
     }
 
     // Update creeps
     for(let name in Game.creeps) {
-        var creep = Game.creeps[name];
-        creepExt.update(creep);
+        Game.creeps[name].update();
+        //creepExt.update(creep);
         //Memory.room[creep.room.name].containerA = ['5d8406e2ec18233c4ea3311c', '5d8407fee9930148a560f2d7'];
         //Memory.room[creep.room.name].containerA = ['5d85686dbcb9d00d2569e637'];
     }
 
     // Update towers
     var towers = _.filter(Game.structures, s => s.structureType == STRUCTURE_TOWER);
-    for (let tower of towers) {
-        towerExt.update(tower);
+    for(let tower of towers) {
+        tower.update();
     }
 };

@@ -18,9 +18,11 @@ Creep.prototype.update =
 
                 // MINER
                 case 'miner':
-                    // If no more miners and charger, turn into harvester
-                    if(_.sum(Game.creeps, (c) => c.memory.role == 'miner') > 1 && _.sum(Game.creeps, (c) => c.memory.role == 'charger') == 0) {
+                    if(_.sum(Game.creeps, (c) => c.memory.role == 'miner') == 1
+                    && _.sum(Game.creeps, (c) => c.memory.role == 'charger') == 0
+                    && _.sum(Game.creeps, (c) => c.memory.role == 'harvester') == 0) {
                         this.memory.role = 'harvester';
+                        return;
                     }
                     if(this.transferToContainer() == true) {
                         return;
@@ -317,7 +319,7 @@ Creep.prototype.transferToStorage =
       return false;
     };
 
-// Transfer energy to container or move to it
+// Transfer energy to controller or move to it
 Creep.prototype.transferToController =
     function() {
         switch(this.upgradeController(this.room.controller)) {

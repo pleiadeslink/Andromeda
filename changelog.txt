@@ -1,5 +1,8 @@
+0.8
+- Minor fixes
+
 0.7
-Creep functions refactored
+- Creep functions refactored
 
 0.6
 - Harvester fix

@@ -1,7 +1,7 @@
 //require('prototype.spawn')();
-var spawnExt = require('prototype.spawn');
-var creepExt = require('prototype.creep');
-var towerExt = require('prototype.tower');
+require('prototype.spawn');
+require('prototype.creep');
+require('prototype.tower');
 
 // room.energyAvailable
 //room.energyCapacityAvailable

@@ -195,7 +195,7 @@ Creep.prototype.update =
 
                     // Find defense structure < 200000 health
                     var structure = this.pos.findClosestByPath(FIND_STRUCTURES, {
-                        filter: (s) => s.hits < 200000 && (s.structureType == STRUCTURE_WALL || s.structureType == STRUCTURE_RAMPART)
+                        filter: (s) => s.hits < 300000 && (s.structureType == STRUCTURE_WALL || s.structureType == STRUCTURE_RAMPART)
                     });
                     if(structure) {
                         if (this.repair(structure) == ERR_NOT_IN_RANGE) {
@@ -340,6 +340,46 @@ Creep.prototype.update =
         }
     };
 
+Creep.prototype.getEnergy =
+    function(fromSource, fromContainer, fromStorage) {
+        // Look for storage
+        if(fromStorage == true) {
+            var storage = this.pos.findClosestByPath(FIND_STRUCTURES, {
+                filter: (s) => s.structureType == STRUCTURE_STORAGE
+                            && s.store[RESOURCE_ENERGY] > 0
+            });
+            if(storage) {
+                if(this.withdraw(storage, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
+                    this.moveTo(storage);
+                }
+                return;
+            }
+        }
+
+        // Look for container
+        if(fromContainer == true) {
+            var container = this.pos.findClosestByPath(FIND_STRUCTURES, {
+                filter: (s) => s.structureType == STRUCTURE_CONTAINER
+                            && s.store[RESOURCE_ENERGY] > 0
+            });
+            if(container) {
+                if(this.withdraw(container, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
+                    this.moveTo(container);
+                }
+                return;
+            }
+        }
+
+        // Look for source
+        if(fromSource == true) {
+            var source = this.pos.findClosestByPath(FIND_SOURCES_ACTIVE);
+            if(this.harvest(source) == ERR_NOT_IN_RANGE) {
+                this.moveTo(source);
+            }
+        }
+    };
+
+// Upgrade controller or moves to it
 Creep.prototype.getEnergy =
     function(fromSource, fromContainer, fromStorage) {
         // Look for storage

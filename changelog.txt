@@ -1,3 +1,6 @@
+0.6
+- Harvester fix
+
 0.5
 - Functions now belong to system objects
 

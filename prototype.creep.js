@@ -13,119 +13,40 @@ Creep.prototype.update =
 
                 // HARVESTER
                 case 'harvester':
-
-                    // Find spawn / extension
-                    var structure = this.pos.findClosestByPath(FIND_MY_STRUCTURES, {
-                        filter: (s) => (s.structureType == STRUCTURE_SPAWN
-                                        || s.structureType == STRUCTURE_EXTENSION)
-                                        && s.energy < s.energyCapacity
-                    });
-
-                    // Transfer / move to structure
-                    if(structure) {
-                        if(this.transfer(structure, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
-                            this.moveTo(structure);
-                        }
-                    }
+                    this.transferToSpawn();
                     return;
 
                 // MINER
                 case 'miner':
-
                     // If no more miners and charger, turn into harvester
                     if(_.sum(Game.creeps, (c) => c.memory.role == 'miner') > 1 && _.sum(Game.creeps, (c) => c.memory.role == 'charger') == 0) {
                         this.memory.role = 'harvester';
                     }
-
-                    // Find container
-                    var structure = this.pos.findClosestByPath(FIND_STRUCTURES, {
-                        filter: (s) => (s.structureType == STRUCTURE_CONTAINER
-                                        && s.store.energy < s.storeCapacity)
-                    });
-
-                    // Transfer / move to container
-                    if(structure) {
-                        if(this.transfer(structure, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
-                            this.moveTo(structure);
-                        }
+                    if(this.transferToContainer() == true) {
                         return;
                     }
-
-                    // Find spawn / extension
-                    var structure = this.pos.findClosestByPath(FIND_MY_STRUCTURES, {
-                        filter: (s) => (s.structureType == STRUCTURE_SPAWN
-                                        || s.structureType == STRUCTURE_EXTENSION)
-                                        && s.energy < s.energyCapacity
-                    });
-
-                    // Transfer / move to structure
-                    if(structure) {
-                        if(this.transfer(structure, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
-                            this.moveTo(structure);
-                        }
+                    if(this.transferToSpawn() == true) {
+                        return;
                     }
                     return;
 
                 // CHARGER
                 case 'charger':
-
-                    if(this.room.energyAvailable < (this.room.energyCapacityAvailable / 4)) {
-                        this.say("💦");
-                    }
-
-                    // Find low-charged tower
-                    var structure = this.pos.findClosestByPath(FIND_MY_STRUCTURES, {
-                        filter: (s) => (s.structureType == STRUCTURE_TOWER)
-                                    && s.energy < (s.energyCapacity / 2)
-                    });
-                    if(structure) {
-                        if (this.transfer(structure, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
-                            this.moveTo(structure);
-                        }
+                    if(this.transferToTower() == true) {
                         return;
                     }
-
-                    // Find structure that needs to be recharged
-                    var structure = this.pos.findClosestByPath(FIND_MY_STRUCTURES, {
-                        filter: (s) => (s.structureType == STRUCTURE_SPAWN
-                                    || s.structureType == STRUCTURE_EXTENSION)
-                                    && s.energy < s.energyCapacity
-                    });
-                    if(structure) {
-                        if(this.transfer(structure, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
-                            this.moveTo(structure);
-                        }
+                    if(this.transferToSpawn() == true) {
                         return;
                     }
-
-                    // Find storage
-                    var structure = this.pos.findClosestByPath(FIND_STRUCTURES, {
-                        filter: (s) => (s.structureType == STRUCTURE_STORAGE
-                                        && s.store.energy < s.storeCapacity)
-                    });
-
-                    // Transfer / move to container
-                    if(structure) {
-                        if(this.transfer(structure, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
-                            this.moveTo(structure);
-                        }
+                    if(this.transferToStorage() == true) {
+                        return;
                     }
                     return;
 
                 // HAULER
                 case 'hauler':
-
-                    // Find storage
-                    var structure = this.pos.findClosestByPath(FIND_STRUCTURES, {
-                        filter: (s) => (s.structureType == STRUCTURE_STORAGE
-                                        && s.store.energy < s.storeCapacity)
-                    });
-
-                    // Transfer / move to container
-                    if(structure) {
-                        if(this.transfer(structure, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
-                            this.moveTo(structure);
-                        }
+                    if(this.transferToStorage() == true) {
+                        return;
                     }
                     return;
 
@@ -138,84 +59,34 @@ Creep.prototype.update =
                         this.moveTo(targetPos);
                         return;
                     }
-
-                    // Upgrade / move to controller
-                    if(this.upgradeController(this.room.controller) == ERR_NOT_IN_RANGE) {
-                        this.moveTo(this.room.controller);
+                    if(this.transferToController() == true) {
+                        return;
                     }
                     return;
 
                 // ENGINEER
                 case 'engineer':
-
-                    // If no more miners and chargers, turn into harvester
-                    //if(_.sum(Game.creeps, (c) => c.memory.role == 'miner') == 0 && _.sum(Game.creeps, (c) => c.memory.role == 'charger') == 0) {
-                    //    creep.memory.role = 'harvester';
-                    //}
-
-                    // Find something to build
-                    var constructionSite = this.pos.findClosestByPath(FIND_CONSTRUCTION_SITES);
-                    if(constructionSite) {
-                        if (this.build(constructionSite) == ERR_NOT_IN_RANGE) {
-                            this.moveTo(constructionSite);
-                        }
+                    if(this.buildStructure() == true) {
                         return;
                     }
-
-                    // Find structure to repair
-                    var structure = this.pos.findClosestByPath(FIND_STRUCTURES, { filter: (s) => s.hits < s.hitsMax
-                                                                                            && s.structureType != STRUCTURE_WALL
-                                                                                            && s.structureType != STRUCTURE_RAMPART });
-                    if(structure) {
-                        if(this.repair(structure) == ERR_NOT_IN_RANGE) {
-                            this.moveTo(structure);
-                        }
+                    if(this.transferToController() == true) {
                         return;
-                    }
-
-                    // Upgrade controller
-                    if(this.upgradeController(this.room.controller) == ERR_NOT_IN_RANGE) {
-                        this.moveTo(this.room.controller);
                     }
                     return;
 
                 // ARCHITECT
                 case 'architect':
-
-                    // Find defense structure < 100000 health
-                    var structure = this.pos.findClosestByPath(FIND_STRUCTURES, {
-                        filter: (s) => s.hits < 100000 && (s.structureType == STRUCTURE_WALL || s.structureType == STRUCTURE_RAMPART)
-                    });
-                    if(structure) {
-                        if (this.repair(structure) == ERR_NOT_IN_RANGE) {
-                            this.moveTo(structure);
-                        }
+                    if(this.repairDefense(100000) == true) {
                         return;
                     }
-
-                    // Find defense structure < 200000 health
-                    var structure = this.pos.findClosestByPath(FIND_STRUCTURES, {
-                        filter: (s) => s.hits < 300000 && (s.structureType == STRUCTURE_WALL || s.structureType == STRUCTURE_RAMPART)
-                    });
-                    if(structure) {
-                        if (this.repair(structure) == ERR_NOT_IN_RANGE) {
-                            this.moveTo(structure);
-                        }
+                    if(this.repairDefense(300000) == true) {
                         return;
                     }
-
-                    // Find something to build
-                    var constructionSite = this.pos.findClosestByPath(FIND_CONSTRUCTION_SITES);
-                    if(constructionSite) {
-                        if(this.build(constructionSite) == ERR_NOT_IN_RANGE) {
-                            this.moveTo(constructionSite);
-                        }
+                    if(this.buildStructure() == true) {
                         return;
                     }
-
-                    // Upgrade controller
-                    if(this.upgradeController(this.room.controller) == ERR_NOT_IN_RANGE) {
-                        this.moveTo(this.room.controller);
+                    if(this.transferToController() == true) {
+                        return;
                     }
                     return;
 
@@ -318,7 +189,7 @@ Creep.prototype.update =
                     //this.getExtEnergy();
                     return;
                 case 'claimer':
-                        this.getEnergy(true, true, false)
+                    this.getEnergy(true, true, false)
                     return;
                 case 'hauler':
                     /*var container;
@@ -379,42 +250,169 @@ Creep.prototype.getEnergy =
         }
     };
 
-// Upgrade controller or moves to it
-Creep.prototype.getEnergy =
-    function(fromSource, fromContainer, fromStorage) {
-        // Look for storage
-        if(fromStorage == true) {
-            var storage = this.pos.findClosestByPath(FIND_STRUCTURES, {
-                filter: (s) => s.structureType == STRUCTURE_STORAGE
-                            && s.store[RESOURCE_ENERGY] > 0
-            });
-            if(storage) {
-                if(this.withdraw(storage, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
-                    this.moveTo(storage);
-                }
-                return;
+// Transfer energy to spawn/extension or move to it
+Creep.prototype.transferToSpawn =
+    function() {
+        var structure = this.pos.findClosestByPath(FIND_MY_STRUCTURES, {
+            filter: (s) => (s.structureType == STRUCTURE_SPAWN
+                        || s.structureType == STRUCTURE_EXTENSION)
+                        && s.energy < s.energyCapacity
+        });
+        if(structure) {
+            switch(this.transfer(structure, RESOURCE_ENERGY)) {
+                case ERR_NOT_IN_RANGE:
+                    if(this.moveTo(structure) == OK) {
+                        return true;
+                    }
+                    break;
+                case OK:
+                    return true;
+                    break;
             }
         }
+        return false;
+    };
 
-        // Look for container
-        if(fromContainer == true) {
-            var container = this.pos.findClosestByPath(FIND_STRUCTURES, {
-                filter: (s) => s.structureType == STRUCTURE_CONTAINER
-                            && s.store[RESOURCE_ENERGY] > 0
-            });
-            if(container) {
-                if(this.withdraw(container, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
-                    this.moveTo(container);
-                }
-                return;
-            }
-        }
+// Transfer energy to container or move to it
+Creep.prototype.transferToContainer =
+    function() {
+      var structure = this.pos.findClosestByPath(FIND_STRUCTURES, {
+          filter: (s) => (s.structureType == STRUCTURE_CONTAINER
+                          && s.store.energy < s.storeCapacity)
+      });
+      if(structure) {
+          switch(this.transfer(structure, RESOURCE_ENERGY)) {
+              case ERR_NOT_IN_RANGE:
+                  if(this.moveTo(structure) == OK) {
+                      return true;
+                  }
+                  break;
+              case OK:
+                  return true;
+                  break;
+          }
+      }
+      return false;
+    };
 
-        // Look for source
-        if(fromSource == true) {
-            var source = this.pos.findClosestByPath(FIND_SOURCES_ACTIVE);
-            if(this.harvest(source) == ERR_NOT_IN_RANGE) {
-                this.moveTo(source);
+// Transfer energy to storage or move to it
+Creep.prototype.transferToStorage =
+    function() {
+      var structure = this.pos.findClosestByPath(FIND_STRUCTURES, {
+          filter: (s) => (s.structureType == STRUCTURE_STORAGE
+                          && s.store.energy < s.storeCapacity)
+      });
+      if(structure) {
+          switch(this.transfer(structure, RESOURCE_ENERGY)) {
+              case ERR_NOT_IN_RANGE:
+                  if(this.moveTo(structure) == OK) {
+                      return true;
+                  }
+                  break;
+              case OK:
+                  return true;
+                  break;
+          }
+      }
+      return false;
+    };
+
+// Transfer energy to container or move to it
+Creep.prototype.transferToController =
+    function() {
+        switch(this.upgradeController(this.room.controller)) {
+            case ERR_NOT_IN_RANGE:
+                if(this.moveTo(this.room.controller) == OK) {
+                    return true;
+                }
+                return false;
+                break;
+            case OK:
+                return true;
+                break;
+        }
+        return false;
+    };
+
+// Transfer energy to tower or move to it
+Creep.prototype.transferToTower =
+    function() {
+        var structure = this.pos.findClosestByPath(FIND_MY_STRUCTURES, {
+            filter: (s) => (s.structureType == STRUCTURE_TOWER)
+                        && s.energy < (s.energyCapacity / 2)
+        });
+        if(structure) {
+            switch(this.transfer(structure, RESOURCE_ENERGY)) {
+                case ERR_NOT_IN_RANGE:
+                    if(this.moveTo(structure) == OK) {
+                        return true;
+                    }
+                    break;
+                case OK:
+                    return true;
+                    break;
             }
         }
+        return false;
+    };
+
+// Build structure or move to it
+Creep.prototype.buildStructure =
+    function() {
+        var constructionSite = this.pos.findClosestByPath(FIND_CONSTRUCTION_SITES);
+        if(constructionSite) {
+            switch(this.build(constructionSite)) {
+                case ERR_NOT_IN_RANGE:
+                    if(this.moveTo(constructionSite) == OK) {
+                        return true;
+                    }
+                    break;
+                case OK:
+                    return true;
+                    break;
+            }
+        }
+        return false;
+    };
+
+// Repair structure or move to it
+Creep.prototype.repairStructure =
+    function() {
+        var structure = this.pos.findClosestByPath(FIND_STRUCTURES, { filter: (s) => s.hits < s.hitsMax
+                                                                                && s.structureType != STRUCTURE_WALL
+                                                                                && s.structureType != STRUCTURE_RAMPART });
+        if(structure) {
+            switch(this.repair(structure)) {
+                case ERR_NOT_IN_RANGE:
+                    if(this.moveTo(structure) == OK) {
+                        return true;
+                    }
+                    break;
+                case OK:
+                    return true;
+                    break;
+            }
+        }
+        return false;
+    };
+
+// Repair wall / rampart that has less than given health or move to it
+Creep.prototype.repairDefense =
+    function(health) {
+        var structure = this.pos.findClosestByPath(FIND_STRUCTURES, {
+            filter: (s) => s.hits < health && (s.structureType == STRUCTURE_WALL || s.structureType == STRUCTURE_RAMPART)
+        });
+        if(structure) {
+            switch(this.repair(structure)) {
+                case ERR_NOT_IN_RANGE:
+                    if(this.moveTo(structure) == OK) {
+                        return true;
+                    }
+                    break;
+                case OK:
+                    return true;
+                    break;
+            }
+        }
+        return false;
     };

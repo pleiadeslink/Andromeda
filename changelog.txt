@@ -1,5 +1,9 @@
+0.7
+Creep functions refactored
+
 0.6
 - Harvester fix
+- Body parts refactored
 
 0.5
 - Functions now belong to system objects

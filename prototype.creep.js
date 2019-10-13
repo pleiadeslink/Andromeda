@@ -18,8 +18,7 @@ Creep.prototype.update =
 
                 // MINER
                 case 'miner':
-                    if(_.sum(Game.creeps, (c) => c.memory.role == 'miner') == 1
-                    && _.sum(Game.creeps, (c) => c.memory.role == 'charger') == 0
+                    if(_.sum(Game.creeps, (c) => c.memory.role == 'charger') == 0
                     && _.sum(Game.creeps, (c) => c.memory.role == 'harvester') == 0) {
                         this.memory.role = 'harvester';
                         return;
@@ -54,11 +53,8 @@ Creep.prototype.update =
 
                 // UPGRADER
                 case 'upgrader':
-
-                    // Move to target room
                     if(this.room.name != this.memory.target) {
-                        var targetPos = new RoomPosition(25,25, this.memory.target);
-                        this.moveTo(targetPos);
+                        this.goTargetRoom();
                         return;
                     }
                     if(this.transferToController() == true) {
@@ -94,14 +90,10 @@ Creep.prototype.update =
 
                 // CLAIMER
                 case 'claimer':
-
-                    // If at home room, go to target room
-                    if (this.room.name == this.memory.home) {
-                        var targetPos = new RoomPosition(25,25, this.memory.target);
-                        this.moveTo(targetPos);
+                    if(this.room.name == this.memory.home) {
+                        this.goTargetRoom();
                         return;
                     }
-
                     if(this.claimController(this.room.controller) == ERR_NOT_IN_RANGE) {
                         this.moveTo(this.room.controller);
                     }
@@ -109,57 +101,25 @@ Creep.prototype.update =
 
                 // EXPLORER
                 case 'explorer':
-
-                    // Home Room
-                    if (this.room.name == this.memory.home) {
-
-                        // Look for container
-                        var container = this.pos.findClosestByPath(FIND_STRUCTURES, {
-                            filter: (s) => s.structureType == STRUCTURE_CONTAINER
-                                        && s.store[RESOURCE_ENERGY] < s.storeCapacity
-                        });
-                        if(container) {
-                            if(this.transfer(container, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
-                                this.moveTo(container);
-                            }
+                    if(this.room.name == this.memory.home) {
+                        if(this.transferToContainer() == true) {
                             return;
                         }
-
-                        // Look for spawn / extensions
-                        var structure = this.pos.findClosestByPath(FIND_MY_STRUCTURES, {
-                            filter: (s) => (s.structureType == STRUCTURE_SPAWN
-                                        || s.structureType == STRUCTURE_EXTENSION)
-                                        && s.energy < s.energyCapacity
-                        });
-                        if (structure == undefined) {
-                            structure = this.room.storage;
+                        if(this.transferToSpawn() == true) {
+                            return;
                         }
-                        if (structure != undefined) {
-                            if (this.transfer(structure, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
-                                this.moveTo(structure);
-                            }
+                        if(this.transferToStorage() == true) {
+                            return;
                         }
                         return;
                     }
-
-                    // Find something to build
-                    var constructionSite = this.pos.findClosestByPath(FIND_CONSTRUCTION_SITES);
-                    if(constructionSite) {
-                        if (this.build(constructionSite) == ERR_NOT_IN_RANGE) {
-                            this.moveTo(constructionSite);
-                        }
+                    if(this.buildStructure() == true) {
                         return;
                     }
-
-                    // Repair buildings
-                    var closestDamagedStructure = this.pos.findClosestByRange(FIND_STRUCTURES, {filter: (s) => s.hits < s.hitsMax && s.structureType != STRUCTURE_WALL && s.structureType != STRUCTURE_RAMPART});
-                    if(closestDamagedStructure) {
-                        this.repair(closestDamagedStructure);
+                    if(this.repairStructure() == true) {
+                        return;
                     }
-
-                    // Go to home room
-                    var targetPos = new RoomPosition(25,25, this.memory.home);
-                    this.moveTo(targetPos);
+                    this.goHomeRoom();
                     return;
             }
 
@@ -167,54 +127,49 @@ Creep.prototype.update =
         } else {
             switch(this.memory.role) {
                 case 'harvester':
-                    this.getEnergy(true, false, false);
+                    this.getEnergy(true, false, false, this.memory.home);
                     return;
                 case 'miner':
-                    this.getEnergy(true, false, false);
+                    this.getEnergy(true, false, false, this.memory.home);
                     return;
                 case 'charger':
-                    this.getEnergy(false, true, false);
+                    this.getEnergy(false, true, false, this.memory.home);
                     return;
                 case 'hauler':
-                    this.getEnergy(false, true, false);
+                    this.getEnergy(false, true, false, this.memory.home);
                     return;
                 case 'upgrader':
-                    this.getEnergy(false, true, true);
+                    this.getEnergy(false, true, true, this.memory.home);
                     return;
                 case 'engineer':
-                    this.getEnergy(false, true, false);
+                    this.getEnergy(false, true, false, this.memory.home);
                     return;
                 case 'architect':
-                    this.getEnergy(false, true, false);
+                    this.getEnergy(false, true, false, this.memory.home);
                     return;
                 case 'explorer':
-                    //this.getExtEnergy();
+                    this.getEnergy(true, false, false, this.memory.target);
                     return;
                 case 'claimer':
-                    this.getEnergy(true, true, false)
+                    this.getEnergy(true, true, false, this.memory.home)
                     return;
                 case 'hauler':
-                    /*var container;
-                    container = Game.getObjectById('5d8407fee9930148a560f2d7');
-                    if(container && ) {
-                    }
-                    var container2 = Game.getObjectById('5d8406e2ec18233c4ea3311c');
-                    if(container1.store != 0 && container1.store > container2.store) {
-                        if(creep.withdraw(container1, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
-                            creep.moveTo(container1);
-                        }
-                    } else if(container2.store != 0) {
-                        if(creep.withdraw(container2, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
-                            creep.moveTo(container2);
-                        }
-                    }*/
                     return;
             }
         }
     };
 
+// Get energy from the sources specified in parameters
 Creep.prototype.getEnergy =
-    function(fromSource, fromContainer, fromStorage) {
+    function(fromSource, fromContainer, fromStorage, room) {
+
+        // If it's not in the room, go to it
+        if(this.room.name != room) {
+            var targetPos = new RoomPosition(25,25, room);
+            this.moveTo(targetPos);
+            return;
+        }
+
         // Look for storage
         if(fromStorage == true) {
             var storage = this.pos.findClosestByPath(FIND_STRUCTURES, {
@@ -417,4 +372,18 @@ Creep.prototype.repairDefense =
             }
         }
         return false;
+    };
+
+// Moves to home room
+Creep.prototype.goHomeRoom =
+    function() {
+        var targetPos = new RoomPosition(25,25, this.memory.home);
+        return this.moveTo(targetPos);
+    };
+
+// Moves to target room
+Creep.prototype.goTargetRoom =
+    function() {
+        var targetPos = new RoomPosition(25,25, this.memory.target);
+        return this.moveTo(targetPos);
     };

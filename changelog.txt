@@ -1,3 +1,6 @@
+0.9
+- Remote mining reenabled
+
 0.8
 - Minor fixes
 

@@ -93,8 +93,8 @@ StructureSpawn.prototype.spawnCreeps =
                 minMiners = 2;
                 minChargers = 1;
                 minUpgraders = 4;
-                minEngineers = 2;
-                minExplorers = 0;
+                minEngineers = 1;
+                minExplorers = 1;
                 minArchitects = 1;
                 minHaulers = 0;
                 minClaimers = 0;
@@ -127,6 +127,8 @@ StructureSpawn.prototype.spawnCreeps =
                 name = this.createCreep(body.charger[this.memory.level], undefined, { role: 'charger', working: false, target: this.room.name, home: this.room.name});
             } else if(currentUpgraders < minUpgraders) {
                 name = this.createCreep(body.upgrader[this.memory.level], undefined, { role: 'upgrader', working: false, target: this.room.name, home: this.room.name});
+            } else if(currentExplorers < minExplorers) {
+                name = this.createCreep(body.explorer[this.memory.level], undefined, { role: 'explorer', working: false, target: "W21N47", home: this.room.name});
             } else if(currentEngineers < minEngineers) {
                 name = this.createCreep(body.engineer[this.memory.level], undefined, { role: 'engineer', working: false, target: this.room.name, home: this.room.name});
             } else if(currentArchitects < minArchitects) {

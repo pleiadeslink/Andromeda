@@ -39,9 +39,6 @@ Creep.prototype.update =
                     if(this.transferToSpawn() == true) {
                         return;
                     }
-                    if(this.transferToStorage() == true) {
-                        return;
-                    }
                     return;
 
                 // HAULER
@@ -113,6 +110,9 @@ Creep.prototype.update =
                         }
                         return;
                     }
+                    if(this.transferToContainer() == true) {
+                        return;
+                    }
                     if(this.buildStructure() == true) {
                         return;
                     }
@@ -139,7 +139,11 @@ Creep.prototype.update =
                     this.getEnergy(false, true, false, this.memory.home);
                     return;
                 case 'upgrader':
-                    this.getEnergy(false, true, true, this.memory.home);
+                    if(this.room.name == this.memory.home) {
+                        this.getEnergy(false, true, true, this.memory.target);
+                    } else {
+                        this.getEnergy(true, true, true, this.memory.target);
+                    }
                     return;
                 case 'engineer':
                     this.getEnergy(false, true, false, this.memory.home);
@@ -151,9 +155,10 @@ Creep.prototype.update =
                     this.getEnergy(true, false, false, this.memory.target);
                     return;
                 case 'claimer':
-                    this.getEnergy(true, true, false, this.memory.home)
+                    this.getEnergy(true, true, false, this.memory.home);
                     return;
                 case 'hauler':
+                    this.getEnergy(false, true, false, this.memory.home)
                     return;
             }
         }

@@ -93,8 +93,8 @@ StructureSpawn.prototype.spawnCreeps =
                 minMiners = 2;
                 minChargers = 1;
                 minUpgraders = 4;
-                minEngineers = 1;
-                minExplorers = 1;
+                minEngineers = 2;
+                minExplorers = 4;
                 minArchitects = 1;
                 minHaulers = 0;
                 minClaimers = 0;
@@ -129,10 +129,16 @@ StructureSpawn.prototype.spawnCreeps =
                 name = this.createCreep(body.upgrader[this.memory.level], undefined, { role: 'upgrader', working: false, target: this.room.name, home: this.room.name});
             } else if(currentExplorers < minExplorers) {
                 name = this.createCreep(body.explorer[this.memory.level], undefined, { role: 'explorer', working: false, target: "W21N47", home: this.room.name});
+            } else if(currentHaulers < minHaulers) {
+                name = this.createCreep(body.hauler[this.memory.level], undefined, { role: 'hauler', working: false, target: this.room.name, home: this.room.name});
             } else if(currentEngineers < minEngineers) {
                 name = this.createCreep(body.engineer[this.memory.level], undefined, { role: 'engineer', working: false, target: this.room.name, home: this.room.name});
             } else if(currentArchitects < minArchitects) {
                 name = this.createCreep(body.architect[this.memory.level], undefined, { role: 'architect', working: false, target: this.room.name, home: this.room.name});
+            } else if(currentClaimers < minClaimers) {
+                name = this.createCreep(body.claimer, undefined, { role: 'claimer', working: false, target: "W21N47", home: this.room.name});
+            } else {
+                name = this.createCreep(body.upgrader[this.memory.level], undefined, { role: 'upgrader', working: false, target: "W21N47", home:"W21N47"});
             }
         }
 

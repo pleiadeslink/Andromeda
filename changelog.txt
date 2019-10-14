@@ -1,3 +1,6 @@
+0.10
+- Second room expansion
+
 0.9
 - Remote mining reenabled
 

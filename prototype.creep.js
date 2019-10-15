@@ -54,6 +54,9 @@ Creep.prototype.update =
                         this.goTargetRoom();
                         return;
                     }
+                    if(this.repairStructure() == true) {
+                        return;
+                    }
                     if(this.transferToController() == true) {
                         return;
                     }
@@ -110,15 +113,15 @@ Creep.prototype.update =
                         }
                         return;
                     }
-                    if(this.transferToContainer() == true) {
-                        return;
-                    }
+                    //if(this.transferToContainer() == true) {
+                    //    return;
+                    //}
                     if(this.buildStructure() == true) {
                         return;
                     }
-                    if(this.repairStructure() == true) {
-                        return;
-                    }
+                    //if(this.repairStructure() == true) {
+                    //    return;
+                    //}
                     this.goHomeRoom();
                     return;
             }

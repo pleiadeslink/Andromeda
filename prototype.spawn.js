@@ -92,9 +92,9 @@ StructureSpawn.prototype.spawnCreeps =
             case 5: // 1000
                 minMiners = 2;
                 minChargers = 1;
-                minUpgraders = 4;
-                minEngineers = 2;
-                minExplorers = 4;
+                minUpgraders = 3;
+                minEngineers = 6;
+                minExplorers = 5;
                 minArchitects = 1;
                 minHaulers = 0;
                 minClaimers = 0;
@@ -126,7 +126,7 @@ StructureSpawn.prototype.spawnCreeps =
             } else if(currentChargers < minChargers) {
                 name = this.createCreep(body.charger[this.memory.level], undefined, { role: 'charger', working: false, target: this.room.name, home: this.room.name});
             } else if(currentUpgraders < minUpgraders) {
-                name = this.createCreep(body.upgrader[this.memory.level], undefined, { role: 'upgrader', working: false, target: this.room.name, home: this.room.name});
+                name = this.createCreep(body.upgrader[this.memory.level], undefined, { role: 'upgrader', working: false, target: "W21N47", home: this.room.name});
             } else if(currentExplorers < minExplorers) {
                 name = this.createCreep(body.explorer[this.memory.level], undefined, { role: 'explorer', working: false, target: "W21N47", home: this.room.name});
             } else if(currentHaulers < minHaulers) {
@@ -137,8 +137,6 @@ StructureSpawn.prototype.spawnCreeps =
                 name = this.createCreep(body.architect[this.memory.level], undefined, { role: 'architect', working: false, target: this.room.name, home: this.room.name});
             } else if(currentClaimers < minClaimers) {
                 name = this.createCreep(body.claimer, undefined, { role: 'claimer', working: false, target: "W21N47", home: this.room.name});
-            } else {
-                name = this.createCreep(body.upgrader[this.memory.level], undefined, { role: 'upgrader', working: false, target: "W21N47", home:"W21N47"});
             }
         }
 
